@@ -6,7 +6,7 @@
     <title>E-Panchayat Portal</title>
     <style>
         :root {
-            --primary-color: #2E8B57; /* Sea Green */
+            --primary-color: #2E8B57; 
             --secondary-color: #f4f4f4;
             --text-color: #333;
         }
@@ -23,7 +23,7 @@
         h2 { border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
         
         /* Forms & Buttons */
-        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"], input[type="password"], input[type="number"], textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { background-color: var(--primary-color); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; }
         button:hover { background-color: #226640; }
         
@@ -35,17 +35,15 @@
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: var(--primary-color); color: white; }
 
-        /* Bill & Receipt Styles */
+        /* Receipt Styles */
         .bill-container { border: 2px solid #333; padding: 20px; background: white; margin-top: 20px; text-align: left; }
         .bill-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
         .bill-header h2 { border-bottom: none; margin: 0; color: #333; }
-        .bill-header p { margin: 5px 0; }
         .bill-details { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .bill-table th, .bill-table td { border: 1px solid #333; padding: 8px; text-align: left; }
         .signature-area { display: flex; justify-content: space-between; margin-top: 50px; font-weight: bold; }
         
-        /* Print Rules - Hides everything except the bill when printing */
         @media print {
             body * { visibility: hidden; }
             #receipt-section, #receipt-section * { visibility: visible; }
@@ -71,23 +69,16 @@
 <div class="container">
     <div id="home" class="section active">
         <h2>Panchayat Notice Board</h2>
-        <div class="notice">
-            <strong>Update (18 Feb 2026):</strong> Gram Sabha meeting scheduled for this Sunday at 10:00 AM at the Panchayat Bhavan.
-        </div>
-        <div class="notice">
-            <strong>Reminder:</strong> Water tax for the quarter is due by the end of this month. Please clear your dues.
-        </div>
-        <div class="notice">
-            <strong>New Scheme:</strong> PM Kisan Samman Nidhi KYC camp is open in the main office.
+        <p>Live updates directly from the Sarpanch's office.</p>
+        <div id="notice-board-content">
+            <p>Loading live notices...</p>
         </div>
     </div>
 
     <div id="pay" class="section">
         <h2>Pay Your Dues (House/Water Tax)</h2>
-        <p>Enter your House ID or Citizen ID to view and pay your pending dues.</p>
         <input type="text" id="citizenId" placeholder="Enter House ID / Citizen ID (e.g., H-101)">
         <button onclick="fetchDues()">Check Dues</button>
-        
         <div id="paymentDetails" style="display:none; margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px;">
             <h3>Dues for ID: <span id="displayId"></span></h3>
             <p><strong>Property Tax:</strong> ₹500</p>
@@ -99,88 +90,105 @@
 
     <div id="public-data" class="section">
         <h2>Public Transparency Dashboard</h2>
-        <p>Overview of village development works and budget utilization.</p>
         <table>
-            <tr>
-                <th>Project Name</th>
-                <th>Allocated Budget (₹)</th>
-                <th>Status</th>
-            </tr>
-            <tr>
-                <td>Panchayat Road Repair (Ward 3)</td>
-                <td>1,50,000</td>
-                <td>Completed</td>
-            </tr>
-            <tr>
-                <td>Solar Street Lights Installation</td>
-                <td>75,000</td>
-                <td>In Progress</td>
-            </tr>
-            <tr>
-                <td>School RO Water Plant</td>
-                <td>40,000</td>
-                <td>Pending Approval</td>
-            </tr>
+            <tr><th>Project Name</th><th>Allocated Budget (₹)</th><th>Status</th></tr>
+            <tr><td>Panchayat Road Repair (Ward 3)</td><td>1,50,000</td><td>Completed</td></tr>
+            <tr><td>Solar Street Lights</td><td>75,000</td><td>In Progress</td></tr>
         </table>
     </div>
 
     <div id="admin" class="section">
-        <h2>Panchayat Admin Login</h2>
-        <p>For Sarpanch and Panchayat Secretary use only.</p>
-        <input type="text" placeholder="Admin Username">
-        <input type="password" placeholder="Password">
-        <button onclick="adminLogin()">Login to Dashboard</button>
+        <h2>Panchayat Admin Dashboard</h2>
+        <div style="background: #e9ecef; padding: 15px; border-radius: 5px;">
+            <h3>Broadcast a New Notice</h3>
+            <textarea id="newNoticeText" rows="4" placeholder="Type a new update, reminder, or scheme announcement here..."></textarea>
+            <button onclick="publishNotice()" style="background: #1e603b;">Publish to Notice Board</button>
+        </div>
     </div>
 
     <div id="receipt-section" class="section">
         <button class="no-print" onclick="showSection('home')" style="background: gray; margin-bottom: 15px;">← Back to Home</button>
         <button class="no-print" onclick="window.print()" style="margin-bottom: 20px;">🖨️ Print / Save as PDF</button>
-
         <div class="bill-container">
-            <div class="bill-header">
-                <h2>GRAM PANCHAYAT KARYALAYA</h2>
-                <p>Official Digital Payment Receipt</p>
-                <p><small>Generated via E-Panchayat Portal</small></p>
-            </div>
-
+            <div class="bill-header"><h2>GRAM PANCHAYAT KARYALAYA</h2><p>Official Digital Payment Receipt</p></div>
             <div class="bill-details">
-                <div>
-                    <p><strong>Receipt No:</strong> <span id="bill-txn"></span></p>
-                    <p><strong>Date:</strong> <span id="bill-date"></span></p>
-                </div>
-                <div>
-                    <p><strong>Citizen / House ID:</strong> <span id="bill-id"></span></p>
-                    <p><strong>Status:</strong> <span style="color: green; font-weight: bold;">PAID ✅</span></p>
-                </div>
+                <div><p><strong>Receipt No:</strong> <span id="bill-txn"></span></p><p><strong>Date:</strong> <span id="bill-date"></span></p></div>
+                <div><p><strong>Citizen ID:</strong> <span id="bill-id"></span></p><p><strong>Status:</strong> <span style="color: green; font-weight: bold;">PAID ✅</span></p></div>
             </div>
-
             <table class="bill-table">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Description of Tax/Fee</th>
-                        <th>Amount (₹)</th>
-                    </tr>
-                </thead>
-                <tbody id="bill-items">
-                    </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="2" style="text-align: right;">Total Paid Amount:</th>
-                        <th>₹<span id="bill-total"></span></th>
-                    </tr>
-                </tfoot>
+                <thead><tr><th>S.No</th><th>Description of Tax/Fee</th><th>Amount (₹)</th></tr></thead>
+                <tbody id="bill-items"></tbody>
+                <tfoot><tr><th colspan="2" style="text-align: right;">Total Paid Amount:</th><th>₹<span id="bill-total"></span></th></tr></tfoot>
             </table>
-
-            <div class="signature-area">
-                <p>System Generated Receipt<br><small>(No physical signature required)</small></p>
-                <p>Panchayat Secretary / Sarpanch</p>
-            </div>
+            <div class="signature-area"><p>System Generated Receipt</p><p>Panchayat Secretary</p></div>
         </div>
     </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <script>
+    const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "panchayat-portal.firebaseapp.com",
+  projectId: "panchayat-portal",
+  storageBucket: "panchayat-portal.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdefg"
+};
+
+    // Initialize Firebase and Firestore Database
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 1. REAL-TIME DATA FETCHING: Listen to the "notices" collection
+    db.collection("notices").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        const board = document.getElementById('notice-board-content');
+        board.innerHTML = ''; // Clear the "loading" text
+        
+        if (snapshot.empty) {
+            board.innerHTML = '<p>No current notices published.</p>';
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+            let noticeData = doc.data();
+            let date = noticeData.timestamp ? noticeData.timestamp.toDate().toLocaleDateString('en-IN') : 'Just now';
+            
+            // Inject the HTML for each notice pulled from the database
+            board.innerHTML += `
+                <div class="notice">
+                    <strong>Update (${date}):</strong> ${noticeData.text}
+                </div>
+            `;
+        });
+    });
+
+    // 2. DATA WRITING: Send a new notice to Firestore
+    function publishNotice() {
+        let noticeText = document.getElementById('newNoticeText').value;
+        
+        if(noticeText.trim() === "") {
+            alert("Notice cannot be empty!");
+            return;
+        }
+
+        // Add a new document to the "notices" collection
+        db.collection("notices").add({
+            text: noticeText,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert("Notice successfully published to the public board!");
+            document.getElementById('newNoticeText').value = ''; // Clear the box
+            showSection('home'); // Take admin back to home to see it
+        }).catch((error) => {
+            console.error("Error writing document: ", error);
+            alert("Something went wrong. Check your Firebase console.");
+        });
+    }
+
+    // --- Original Frontend Logic for UI and Payments ---
     function showSection(sectionId) {
         let sections = document.querySelectorAll('.section');
         sections.forEach(sec => sec.classList.remove('active'));
@@ -189,17 +197,13 @@
 
     function fetchDues() {
         let cid = document.getElementById('citizenId').value;
-        if(cid === "") {
-            alert("Please enter a valid House ID.");
-            return;
-        }
+        if(cid === "") { alert("Please enter a valid House ID."); return; }
         document.getElementById('displayId').innerText = cid;
         document.getElementById('paymentDetails').style.display = 'block';
     }
 
     function processPayment() {
         alert("Redirecting to Secure Payment Gateway...\n\nPayment Successful! Generating Bill...");
-        
         let cid = document.getElementById('citizenId').value;
         let today = new Date().toLocaleDateString('en-IN');
         let txnId = "TXN-" + Math.floor(Math.random() * 100000000); 
@@ -209,17 +213,11 @@
         document.getElementById('bill-id').innerText = cid;
         document.getElementById('bill-total').innerText = "650"; 
 
-        let itemsHtml = `
+        document.getElementById('bill-items').innerHTML = `
             <tr><td>1</td><td>Property / House Tax</td><td>500</td></tr>
             <tr><td>2</td><td>Water Supply Bill</td><td>150</td></tr>
         `;
-        document.getElementById('bill-items').innerHTML = itemsHtml;
-
         showSection('receipt-section');
-    }
-
-    function adminLogin() {
-        alert("Logging into Admin Dashboard...");
     }
 </script>
 
