@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Panchayat Portal</title>
+    <style>
+        :root {
+            --primary-color: #2E8B57; /* Sea Green */
+            --secondary-color: #f4f4f4;
+            --text-color: #333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: var(--secondary-color); color: var(--text-color); }
+        header { background-color: var(--primary-color); color: white; padding: 1.5rem; text-align: center; }
+        nav { display: flex; justify-content: center; background: #226640; padding: 10px; }
+        nav a { color: white; text-decoration: none; padding: 10px 20px; font-weight: bold; }
+        nav a:hover { background: var(--primary-color); border-radius: 5px; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+        
+        /* Section Toggling */
+        .section { display: none; }
+        .section.active { display: block; }
+        h2 { border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
+        
+        /* Forms & Buttons */
+        input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: var(--primary-color); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; }
+        button:hover { background-color: #226640; }
+        
+        /* Notice Board */
+        .notice { background: #fff3cd; border-left: 5px solid #ffc107; padding: 10px; margin-bottom: 10px; }
+        
+        /* Public Data Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: var(--primary-color); color: white; }
+
+        /* Bill & Receipt Styles */
+        .bill-container { border: 2px solid #333; padding: 20px; background: white; margin-top: 20px; text-align: left; }
+        .bill-header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .bill-header h2 { border-bottom: none; margin: 0; color: #333; }
+        .bill-header p { margin: 5px 0; }
+        .bill-details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .bill-table th, .bill-table td { border: 1px solid #333; padding: 8px; text-align: left; }
+        .signature-area { display: flex; justify-content: space-between; margin-top: 50px; font-weight: bold; }
+        
+        /* Print Rules - Hides everything except the bill when printing */
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-section, #receipt-section * { visibility: visible; }
+            #receipt-section { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="no-print">Digital E-Panchayat Portal</h1>
+    <p class="no-print">Transparent, Digital, and Connected Governance</p>
+</header>
+
+<nav class="no-print">
+    <a href="#" onclick="showSection('home')">Home & Updates</a>
+    <a href="#" onclick="showSection('pay')">Pay Taxes</a>
+    <a href="#" onclick="showSection('public-data')">Public Data</a>
+    <a href="#" onclick="showSection('admin')">Admin Login</a>
+</nav>
+
+<div class="container">
+    <div id="home" class="section active">
+        <h2>Panchayat Notice Board</h2>
+        <div class="notice">
+            <strong>Update (18 Feb 2026):</strong> Gram Sabha meeting scheduled for this Sunday at 10:00 AM at the Panchayat Bhavan.
+        </div>
+        <div class="notice">
+            <strong>Reminder:</strong> Water tax for the quarter is due by the end of this month. Please clear your dues.
+        </div>
+        <div class="notice">
+            <strong>New Scheme:</strong> PM Kisan Samman Nidhi KYC camp is open in the main office.
+        </div>
+    </div>
+
+    <div id="pay" class="section">
+        <h2>Pay Your Dues (House/Water Tax)</h2>
+        <p>Enter your House ID or Citizen ID to view and pay your pending dues.</p>
+        <input type="text" id="citizenId" placeholder="Enter House ID / Citizen ID (e.g., H-101)">
+        <button onclick="fetchDues()">Check Dues</button>
+        
+        <div id="paymentDetails" style="display:none; margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px;">
+            <h3>Dues for ID: <span id="displayId"></span></h3>
+            <p><strong>Property Tax:</strong> ₹500</p>
+            <p><strong>Water Bill:</strong> ₹150</p>
+            <p><strong>Total Due:</strong> ₹650</p>
+            <button onclick="processPayment()">Proceed to Pay via UPI/Card</button>
+        </div>
+    </div>
+
+    <div id="public-data" class="section">
+        <h2>Public Transparency Dashboard</h2>
+        <p>Overview of village development works and budget utilization.</p>
+        <table>
+            <tr>
+                <th>Project Name</th>
+                <th>Allocated Budget (₹)</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>Panchayat Road Repair (Ward 3)</td>
+                <td>1,50,000</td>
+                <td>Completed</td>
+            </tr>
+            <tr>
+                <td>Solar Street Lights Installation</td>
+                <td>75,000</td>
+                <td>In Progress</td>
+            </tr>
+            <tr>
+                <td>School RO Water Plant</td>
+                <td>40,000</td>
+                <td>Pending Approval</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="admin" class="section">
+        <h2>Panchayat Admin Login</h2>
+        <p>For Sarpanch and Panchayat Secretary use only.</p>
+        <input type="text" placeholder="Admin Username">
+        <input type="password" placeholder="Password">
+        <button onclick="adminLogin()">Login to Dashboard</button>
+    </div>
+
+    <div id="receipt-section" class="section">
+        <button class="no-print" onclick="showSection('home')" style="background: gray; margin-bottom: 15px;">← Back to Home</button>
+        <button class="no-print" onclick="window.print()" style="margin-bottom: 20px;">🖨️ Print / Save as PDF</button>
+
+        <div class="bill-container">
+            <div class="bill-header">
+                <h2>GRAM PANCHAYAT KARYALAYA</h2>
+                <p>Official Digital Payment Receipt</p>
+                <p><small>Generated via E-Panchayat Portal</small></p>
+            </div>
+
+            <div class="bill-details">
+                <div>
+                    <p><strong>Receipt No:</strong> <span id="bill-txn"></span></p>
+                    <p><strong>Date:</strong> <span id="bill-date"></span></p>
+                </div>
+                <div>
+                    <p><strong>Citizen / House ID:</strong> <span id="bill-id"></span></p>
+                    <p><strong>Status:</strong> <span style="color: green; font-weight: bold;">PAID ✅</span></p>
+                </div>
+            </div>
+
+            <table class="bill-table">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Description of Tax/Fee</th>
+                        <th>Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="bill-items">
+                    </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" style="text-align: right;">Total Paid Amount:</th>
+                        <th>₹<span id="bill-total"></span></th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="signature-area">
+                <p>System Generated Receipt<br><small>(No physical signature required)</small></p>
+                <p>Panchayat Secretary / Sarpanch</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showSection(sectionId) {
+        let sections = document.querySelectorAll('.section');
+        sections.forEach(sec => sec.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+    }
+
+    function fetchDues() {
+        let cid = document.getElementById('citizenId').value;
+        if(cid === "") {
+            alert("Please enter a valid House ID.");
+            return;
+        }
+        document.getElementById('displayId').innerText = cid;
+        document.getElementById('paymentDetails').style.display = 'block';
+    }
+
+    function processPayment() {
+        alert("Redirecting to Secure Payment Gateway...\n\nPayment Successful! Generating Bill...");
+        
+        let cid = document.getElementById('citizenId').value;
+        let today = new Date().toLocaleDateString('en-IN');
+        let txnId = "TXN-" + Math.floor(Math.random() * 100000000); 
+        
+        document.getElementById('bill-txn').innerText = txnId;
+        document.getElementById('bill-date').innerText = today;
+        document.getElementById('bill-id').innerText = cid;
+        document.getElementById('bill-total').innerText = "650"; 
+
+        let itemsHtml = `
+            <tr><td>1</td><td>Property / House Tax</td><td>500</td></tr>
+            <tr><td>2</td><td>Water Supply Bill</td><td>150</td></tr>
+        `;
+        document.getElementById('bill-items').innerHTML = itemsHtml;
+
+        showSection('receipt-section');
+    }
+
+    function adminLogin() {
+        alert("Logging into Admin Dashboard...");
+    }
+</script>
+
+</body>
+</html>
