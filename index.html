@@ -139,15 +139,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script> <script>
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    // 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴
+    // Make sure to copy the entire block exactly as Firebase provided it.
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCRQicFDI3VkQDZXXgtmI95oAP42oFyB-0",
   authDomain: "panchayat-portal.firebaseapp.com",
@@ -157,10 +151,6 @@ const firebaseConfig = {
   appId: "1:114562002527:web:2260a516dd69bd7e51f5ea",
   measurementId: "G-PBX62DSCD2"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
     // Initialize Firebase, Firestore, and Auth
     firebase.initializeApp(firebaseConfig);
@@ -275,4 +265,3 @@ const analytics = getAnalytics(app);
 
 </body>
 </html>
-
